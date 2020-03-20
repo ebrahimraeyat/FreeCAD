@@ -21,58 +21,67 @@
 # *                                                                         *
 # ***************************************************************************
 
+import FreeCAD
+
+
 __all__ = [
-    'Nodes',
+    'Materials',
 ]
 
 
-class Nodes(object):
+class Materials(object):
 
     def __init__(self):
+
         pass
 
-    def write_nodes(self):
+    def write_materials(self):
 
-        header = {
-            'abaqus': '**\n*NODE, NSET=nset_all\n**',
-            'opensees': '#',
-            'ansys': '!',
-        }
+        self.write_section('Materials')
+        self.blank_line()
+        print(self.material_objects)
+        mat_obj = self.material_objects[0]["Object"]
+        E = FreeCAD.Units.Quantity(mat_obj.Material["YoungsModulus"])
+        E = E.getValueAs("kg/(mm*s^2)")
+        v = float(mat_obj.Material["PoissonRatio"])
+        p = FreeCAD.Units.Quantity(mat_obj.Material["Density"])
+        p = p.getValueAs("kg/mm^3")
 
-        self.prefix = {
-            'abaqus': '',
-            'opensees': 'node ',
-            'ansys': '',
-        }
+        mtype = 'ElasticIsotropic'
 
-        self.write_section('Nodes')
-        self.write_line(header[self.software])
+        # Elastic
+        # -------
 
-        for key in sorted(self.femnodes_mesh, key=int):
+        if mtype == 'ElasticIsotropic':
 
-            self.write_node(key)
+            # self.write_line('uniaxialMaterial Elastic {0} {1}'.format(m_index, E['E']))
+            self.write_line('nDMaterial ElasticIsotropic {0} {1} {2} {3}'.format(
+                            1, E.Value, v, p.Value))
 
-        # if self.software == 'opensees':
-        #     self.blank_line()
-        #     for key in sorted(self.structure.nodes, key=int):
-        #         if self.structure.nodes[key].mass:
-        #             self.write_mass(key)
+        elif mtype == 'Steel':
+
+            fy = material.fy
+            fu = material.fu
+            ep = material.ep
+            EshE = (fu - fy) / ep
+
+            self.write_line('uniaxialMaterial Steel01 {0} {1} {2} {3}'.format(m_index, fy, E['E'], EshE))
 
         self.blank_line()
         self.blank_line()
 
-    def write_node(self, key):
 
-        prefix = self.prefix[self.software]
-        spacer = self.spacer[self.software]
-        vector = self.femnodes_mesh[key]
-        x, y, z = vector.x, vector.y, vector.z
+# f.write('*CONDUCTIVITY\n')
+# f.write('** k[W/mK]\n')
+# f.write('**\n')
 
-        line = '{0}{1}{2}{3:.3f}{2}{4:.3f}{2}{5:.3f}'.format(prefix, key, spacer, x, y, z)
-        self.write_line(line)
+# for i in material.conductivity:
+#     f.write(', '.join([str(j) for j in i]) + '\n')
 
-    def write_mass(self, key):
+# f.write('**\n')
+# f.write('*SPECIFIC HEAT\n')
+# f.write('** c[J/kgK]\n')
+# f.write('**\n')
 
-        mr = '' if self.ndof == 3 else '0 0 0'
-        line = 'mass {0} {1} {1} {1} {2}'.format(key + 1, self.structure.nodes[key].mass, mr)
-        self.write_line(line)
+# for i in material.sheat:
+#     f.write(', '.join([str(j) for j in i]) + '\n')
