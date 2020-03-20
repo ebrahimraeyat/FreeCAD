@@ -39,13 +39,13 @@ import FreeCAD
 
 from .heading import Heading
 from .nodes import Nodes
-# from elements import Elements
+from .elements import Elements
+from .loads import Loads
 # from sets import Sets
 # from bcs import BCs
-# from materials import Materials
+from .materials import Materials
 # from steps import Steps
 from .. import writerbase as FemInputWriter
-from feminout import importOpenSeesMesh
 from femmesh import meshtools
 
 
@@ -63,7 +63,10 @@ comments = {
 
 
 class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
-                             # Steps, Materials, BCs, Sets, Elements,
+                             # Steps,  BCs, Sets,
+                             Loads,
+                             Materials,
+                             Elements,
                              Nodes,
                              Heading):
 
@@ -89,7 +92,7 @@ class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
                  software='opensees',
                  filename='/home/ebi/freecad_opensees.tcl',
                  fields=None,
-                 ndof=6,
+                 ndof=3,
                  ):
         FemInputWriter.FemInputWriter.__init__(self,
                                                analysis_obj,
@@ -114,32 +117,24 @@ class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
             self.femelement_table = meshtools.get_femelement_table(self.femmesh)
             self.element_count = len(self.femelement_table)
 
-        print(f'self.femelement_table = {self.femelement_table}')
-        print(f'self.element_count = {self.element_count}')
-
     def write_opensees_input_file(self):
 
-        input_generate(self.analysis,
-                       self.solver_obj,
-                       self.mesh_object,
-                       self.member,
-                       self.structure,
-                       self.fields,
-                       self.ndof,
-                       self.filename,
-                       )
+        with FemInputWriterOpenSees(self.analysis,
+                                    self.solver_obj,
+                                    self.mesh_object,
+                                    self.member,
+                                    software='opensees',
+                                    filename=self.filename,
+                                    ndof=self.ndof) as writer:
 
-        # timestart = time.clock()
+            writer.write_heading()
+            writer.write_materials()
+            writer.write_nodes()
+            # writer.write_boundary_conditions()
+            writer.write_elements()
+            writer.write_loads()
 
-        # inpfile = open(self.file_name, "w")
-
-        # inpfile.write(example_input_file)
-        # inpfile.close()
-        # writing_time_string = (
-        #     "Writing time input file: {} seconds"
-        #     .format(round((time.clock() - timestart), 2))
-        # )
-        # FreeCAD.Console.PrintMessage(writing_time_string + " \n\n")
+        print('***** OpenSees input file generated: {0} *****\n'.format(self.filename))
         return self.file_name
 
     def __enter__(self):
@@ -174,53 +169,3 @@ class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
         self.write_line('{0} {1}'.format(self.comment, subsection))
         self.write_line('{0}-{1}'.format(self.comment, '-' * len(subsection)))
         self.blank_line()
-
-
-def input_generate(analysis_obj,
-                   solver_obj,
-                   mesh_obj,
-                   member,
-                   structure,
-                   fields,
-                   ndof,
-                   filename,
-                   ):
-    """ Creates the OpenSees .tcl file from the Structure object.
-
-    Parameters
-    ----------
-    structure : obj
-        The Structure object to read from.
-    fields : list
-        Data field requests.
-    output : bool
-        Print terminal output.
-    ndof : int
-        Number of degrees-of-freedom in the model, 3 or 6.
-
-    Returns
-    -------
-    None
-
-    """
-
-    # filename = '{0}{1}.tcl'.format(structure.path, structure.name)
-
-    with FemInputWriterOpenSees(analysis_obj,
-                                solver_obj,
-                                mesh_obj,
-                                member,
-                                structure=structure,
-                                software='opensees',
-                                filename=filename,
-                                fields=fields,
-                                ndof=ndof) as writer:
-
-        writer.write_heading()
-        writer.write_nodes()
-        # writer.write_boundary_conditions()
-        # writer.write_materials()
-        # writer.write_elements()
-        # writer.write_steps()
-
-    print('***** OpenSees input file generated: {0} *****\n'.format(filename))

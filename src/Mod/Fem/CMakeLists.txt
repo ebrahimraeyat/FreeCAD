@@ -37,6 +37,7 @@ SET(FemExamples_SRCS
     femexamples/__init__.py
     femexamples/boxanalysis.py
     femexamples/ccx_cantilever_std.py
+    femexamples/opensees_cantilever_std.py
     femexamples/constraint_contact_shell_shell.py
     femexamples/constraint_contact_solid_solid.py
     femexamples/constraint_tie.py
@@ -146,6 +147,13 @@ SET(FemSolverOpenSees_SRCS
     femsolver/opensees/solver.py
     femsolver/opensees/tasks.py
     femsolver/opensees/writer.py
+    femsolver/opensees/heading.py
+    femsolver/opensees/nodes.py
+    femsolver/opensees/elements.py
+    femsolver/opensees/materials.py
+    femsolver/opensees/bcs.py
+    femsolver/opensees/steps.py
+    femsolver/opensees/loads.py
 )
 
 SET(FemSolverZ88_SRCS
