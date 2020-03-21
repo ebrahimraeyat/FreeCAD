@@ -40,7 +40,9 @@ __url__ = "http://www.freecadweb.org"
 # \addtogroup FEM
 #  @{
 
+
 import time
+from os.path import join
 
 import FreeCAD
 
@@ -110,8 +112,7 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
                                            )
 
         self.comment = comments[software]
-        self.filename = filename
-        self.file_name = filename
+        self.file_name = join(self.dir_name, self.mesh_object.Name + ".tcl")
         self.member = member
         self.ndof = ndof
         self.software = software
@@ -135,12 +136,12 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
         self.write_elements()
         self.write_loads()
 
-        print('***** OpenSees input file generated: {0} *****\n'.format(self.filename))
+        print('***** OpenSees input file generated: {0} *****\n'.format(self.file_name))
         return self.file_name
 
     def __enter__(self):
 
-        self.file = open(self.filename, 'w')
+        self.file = open(self.file_name, 'w')
         return self
 
     def __exit__(self, type, value, traceback):

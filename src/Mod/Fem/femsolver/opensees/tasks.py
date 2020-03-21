@@ -50,7 +50,7 @@ class Check(run.Check):
     def run(self):
         self.pushStatus("Checking analysis...\n")
         self.checkMesh()
-        # self.checkMaterial()
+        self.checkMaterial()
 
 
 class Prepare(run.Prepare):
