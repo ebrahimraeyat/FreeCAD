@@ -45,36 +45,20 @@ class Loads(object):
         for femobj in self.force_objects:
             # femobj --> dict, FreeCAD document object is femobj["Object"]
             direction_vec = femobj["Object"].DirectionVector
-            print(direction_vec)
-            print(femobj)
             for ref_shape in femobj["NodeLoadTable"]:
                 for n in sorted(ref_shape[1]):
                     node_load = ref_shape[1][n]
-                    # if (direction_vec.x != 0.0):
                     v1 = direction_vec.x * node_load
-                    #     constraints_data.append((n, str(n) + "  1  1  " + str(v1) + "\n"))
-                    # if (direction_vec.y != 0.0):
                     v2 = direction_vec.y * node_load
-                    #     constraints_data.append((n, str(n) + "  2  1  " + str(v2) + "\n"))
-                    # if (direction_vec.z != 0.0):
                     v3 = direction_vec.z * node_load
-                    # constraints_data.append((n, str(n) + "  3  1  " + str(v3) + "\n"))
-
-                    self.write_subsection(k)
-
-                    # load = loads[k]
                     ltype = "PointLoad"
-                    # com = getattr(load, 'components', None)
-                    # axes = getattr(load, 'axes', None)
-                    # nodes = getattr(load, 'nodes', None)
-                    # fact = factor.get(k, 1.0) if isinstance(factor, dict) else factor
 
                     # PointLoad
                     # ---------
 
                     if ltype == 'PointLoad':
 
-                        self.write_line('load {0} {1} {2} {3}'.format(n, v1, v2, v3))
+                        self.write_line('load {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(n, v1, v2, v3))
 
                     # Gravity
                     # -------
@@ -84,7 +68,7 @@ class Loads(object):
                         for nkey, node in self.structure.nodes.items():
 
                             W = - fact * node.mass * 9.81
-                            self.write_line('load {0} {1} {2} {3}'.format(nkey + 1, gx * W, gy * W, gz * W))
+                            self.write_line('load {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(nkey + 1, gx * W, gy * W, gz * W))
 
                     # LineLoad
                     # --------
@@ -101,8 +85,6 @@ class Loads(object):
                             lx = -com['x'] * fact
                             ly = -com['y'] * fact
                             self.write_line('eleLoad -ele {0} -type -beamUniform {1} {2}'.format(elements, ly, lx))
-
-                    self.blank_line()
 
                 self.blank_line()
                 self.blank_line()

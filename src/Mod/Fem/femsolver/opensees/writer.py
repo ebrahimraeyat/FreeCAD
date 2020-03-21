@@ -41,7 +41,7 @@ from .loads import Loads
 # from bcs import BCs
 from .materials import Materials
 # from steps import Steps
-from .. import writerbase as FemInputWriter
+from .. import writerbase
 from femmesh import meshtools
 
 
@@ -58,7 +58,7 @@ comments = {
 }
 
 
-class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
+class FemInputWriterOpenSees(writerbase.FemInputWriter,
                              # Steps,  BCs, Sets,
                              Loads,
                              Materials,
@@ -90,13 +90,13 @@ class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
                  fields=None,
                  ndof=3,
                  ):
-        FemInputWriter.FemInputWriter.__init__(self,
-                                               analysis_obj,
-                                               solver_obj,
-                                               mesh_obj,
-                                               member,
-                                               dir_name,
-                                               )
+        writerbase.FemInputWriter.__init__(self,
+                                           analysis_obj,
+                                           solver_obj,
+                                           mesh_obj,
+                                           member,
+                                           dir_name,
+                                           )
 
         self.comment = comments[software]
         self.filename = filename
@@ -107,28 +107,22 @@ class FemInputWriterOpenSees(FemInputWriter.FemInputWriter,
         self.structure = structure
         self.fields = fields
         self.spacer = {'abaqus': ', ', 'opensees': ' ', 'ansys': ' '}
+
+    def write_opensees_input_file(self):
+
         if not self.femnodes_mesh:
             self.femnodes_mesh = self.femmesh.Nodes
         if not self.femelement_table:
             self.femelement_table = meshtools.get_femelement_table(self.femmesh)
             self.element_count = len(self.femelement_table)
+        self.get_constraints_force_nodeloads()
 
-    def write_opensees_input_file(self):
-
-        with FemInputWriterOpenSees(self.analysis,
-                                    self.solver_obj,
-                                    self.mesh_object,
-                                    self.member,
-                                    software='opensees',
-                                    filename=self.filename,
-                                    ndof=self.ndof) as writer:
-
-            writer.write_heading()
-            writer.write_materials()
-            writer.write_nodes()
-            # writer.write_boundary_conditions()
-            writer.write_elements()
-            writer.write_loads()
+        self.write_heading()
+        self.write_materials()
+        self.write_nodes()
+        # writer.write_boundary_conditions()
+        self.write_elements()
+        self.write_loads()
 
         print('***** OpenSees input file generated: {0} *****\n'.format(self.filename))
         return self.file_name
