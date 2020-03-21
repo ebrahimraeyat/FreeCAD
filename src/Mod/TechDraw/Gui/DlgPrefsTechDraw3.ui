@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>448</width>
-    <height>1152</height>
+    <height>856</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -229,7 +229,7 @@
            <string>Dimension text font size</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="value" stdset="0">
            <double>4.000000000000000</double>
@@ -254,7 +254,7 @@
            <string>Arrowhead size</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignRight</set>
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
           <property name="value" stdset="0">
            <double>5.000000000000000</double>
@@ -779,10 +779,10 @@
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Keep pyramid leader line end in vertical or horizontal position</string>
+           <string>Restrict Filled Triangle line end to vertical or horizontal directions</string>
           </property>
           <property name="text">
-           <string>Balloon Pyramid Vertical</string>
+           <string>Balloon Orthogonal Triangle</string>
           </property>
           <property name="checked">
            <bool>true</bool>

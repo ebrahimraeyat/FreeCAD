@@ -94,24 +94,20 @@ DrawViewBalloon::DrawViewBalloon(void)
     ADD_PROPERTY_TYPE(SourceView,(0),"",(App::PropertyType)(App::Prop_None),"Source view for balloon");
     ADD_PROPERTY_TYPE(OriginX,(0),"",(App::PropertyType)(App::Prop_None),"Balloon origin x");
     ADD_PROPERTY_TYPE(OriginY,(0),"",(App::PropertyType)(App::Prop_None),"Balloon origin y");
-    ADD_PROPERTY_TYPE(OriginIsSet, (false), "",(App::PropertyType)(App::Prop_None),"Balloon origin is set");
 
     EndType.setEnums(ArrowPropEnum::ArrowTypeEnums);
     ADD_PROPERTY(EndType,(prefEnd()));
 
-    Symbol.setEnums(balloonTypeEnums);
-    ADD_PROPERTY(Symbol,(prefShape()));
+    Shape.setEnums(balloonTypeEnums);
+    ADD_PROPERTY(Shape,(prefShape()));
 
-    ADD_PROPERTY_TYPE(SymbolScale,(1.0),"",(App::PropertyType)(App::Prop_None),"Balloon symbol scale");
-    SymbolScale.setConstraints(&SymbolScaleRange);
+    ADD_PROPERTY_TYPE(ShapeScale,(1.0),"",(App::PropertyType)(App::Prop_None),"Balloon shape scale");
+    ShapeScale.setConstraints(&SymbolScaleRange);
 
     ADD_PROPERTY_TYPE(TextWrapLen,(-1),"",(App::PropertyType)(App::Prop_None),"Text wrap length; -1 means no wrap");
 
     ADD_PROPERTY_TYPE(KinkLength,(prefKinkLength()),"",(App::PropertyType)(App::Prop_None),
                                   "Distance from symbol to leader kink");
-
-    OriginIsSet.setStatus(App::Property::Hidden,false);
-    OriginIsSet.setStatus(App::Property::ReadOnly,true);
 
     SourceView.setScope(App::LinkScope::Global);
     Rotation.setStatus(App::Property::Hidden,true);
@@ -127,7 +123,7 @@ void DrawViewBalloon::onChanged(const App::Property* prop)
 {
     if (!isRestoring()) {
         if ( (prop == &EndType) ||
-             (prop == &Symbol)  ||
+             (prop == &Shape)  ||
              (prop == &Text)    ||
              (prop == &KinkLength) ) {
             requestPaint();
@@ -138,14 +134,22 @@ void DrawViewBalloon::onChanged(const App::Property* prop)
 
 void DrawViewBalloon::handleChangedPropertyName(Base::XMLReader &reader, const char * TypeName, const char *PropName)
 {
-    // was sourceView in the past, now is SourceView
     Base::Type type = Base::Type::fromName(TypeName);
-    if (SourceView.getClassTypeId() == type && strcmp(PropName, "sourceView") == 0) {
+    // was sourceView in the past, now is SourceView
+    if (SourceView.getClassTypeId() == type && strcmp(PropName, "sourceView") == 0)
         SourceView.Restore(reader);
-    }
-    else {
+    else
         DrawView::handleChangedPropertyName(reader, TypeName, PropName);
-    }
+    // was Symbol in the past, now is Shape
+    if (Shape.getClassTypeId() == type && strcmp(PropName, "Symbol") == 0)
+        Shape.Restore(reader);
+    else
+        DrawView::handleChangedPropertyName(reader, TypeName, PropName);
+    // was SymbolScale in the past, now is ShapeScale
+    if (ShapeScale.getClassTypeId() == type && strcmp(PropName, "SymbolScale") == 0)
+        ShapeScale.Restore(reader);
+    else
+        DrawView::handleChangedPropertyName(reader, TypeName, PropName);
 }
 
 void DrawViewBalloon::handleChangedPropertyType(Base::XMLReader &reader, const char *TypeName, App::Property *prop)

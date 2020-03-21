@@ -19,13 +19,18 @@
 # *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  *
 # *   USA                                                                   *
 # *                                                                         *
-# ***************************************************************************/
+# ***************************************************************************
+
+__title__ = "Objects FEM unit tests"
+__author__ = "Bernd Hahnebach"
+__url__ = "http://www.freecadweb.org"
 
 import sys
+import unittest
 
 import FreeCAD
+
 import ObjectsFem
-import unittest
 from . import support_utils as testtools
 from .support_utils import fcc_print
 
@@ -38,15 +43,8 @@ class TestObjectCreate(unittest.TestCase):
         self
     ):
         # setUp is executed before every test
-        # setting up a document to hold the tests
         self.doc_name = self.__class__.__name__
-        if FreeCAD.ActiveDocument:
-            if FreeCAD.ActiveDocument.Name != self.doc_name:
-                FreeCAD.newDocument(self.doc_name)
-        else:
-            FreeCAD.newDocument(self.doc_name)
-        FreeCAD.setActiveDocument(self.doc_name)
-        self.active_doc = FreeCAD.ActiveDocument
+        self.document = FreeCAD.newDocument(self.doc_name)
 
     def test_00print(
         self
@@ -61,7 +59,9 @@ class TestObjectCreate(unittest.TestCase):
     def test_femobjects_make(
         self
     ):
-        doc = self.active_doc
+        # TODO return document, see Part
+        # https://github.com/FreeCAD/FreeCAD/blob/565bdbbb3e/src/Mod/Part/parttests/part_test_objects.py#L260
+        doc = self.document
         analysis = ObjectsFem.makeAnalysis(doc)
 
         analysis.addObject(ObjectsFem.makeConstraintBearing(doc))
@@ -159,15 +159,8 @@ class TestObjectType(unittest.TestCase):
         self
     ):
         # setUp is executed before every test
-        # setting up a document to hold the tests
         self.doc_name = self.__class__.__name__
-        if FreeCAD.ActiveDocument:
-            if FreeCAD.ActiveDocument.Name != self.doc_name:
-                FreeCAD.newDocument(self.doc_name)
-        else:
-            FreeCAD.newDocument(self.doc_name)
-        FreeCAD.setActiveDocument(self.doc_name)
-        self.active_doc = FreeCAD.ActiveDocument
+        self.document = FreeCAD.newDocument(self.doc_name)
 
     def test_00print(
         self
@@ -182,7 +175,7 @@ class TestObjectType(unittest.TestCase):
     def test_femobjects_type(
         self
     ):
-        doc = self.active_doc
+        doc = self.document
 
         from femtools.femutils import type_of_obj
         self.assertEqual(
@@ -383,7 +376,7 @@ class TestObjectType(unittest.TestCase):
     def test_femobjects_isoftype(
         self
     ):
-        doc = self.active_doc
+        doc = self.document
 
         from femtools.femutils import is_of_type
         self.assertTrue(is_of_type(
@@ -587,7 +580,7 @@ class TestObjectType(unittest.TestCase):
     ):
         # try to add all possible True types from inheritance chain see
         # https://forum.freecadweb.org/viewtopic.php?f=10&t=32625
-        doc = self.active_doc
+        doc = self.document
 
         from femtools.femutils import is_derived_from
 
@@ -1306,7 +1299,7 @@ class TestObjectType(unittest.TestCase):
         self
     ):
         # only the last True type is used
-        doc = self.active_doc
+        doc = self.document
 
         self.assertTrue(
             ObjectsFem.makeAnalysis(
