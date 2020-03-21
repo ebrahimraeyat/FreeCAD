@@ -22,6 +22,17 @@
 # *                                                                         *
 # ***************************************************************************
 
+"""
+# set up test file in FreeCAD Gui
+from femexamples import ccx_cantilever_std as canti
+canti.setup_cantileverhexa20faceload(solvertype="opensees")
+
+# run OpenSees solver
+from femsolver.run import run_fem_solver as run
+run(App.ActiveDocument.SolverOpenSees)
+
+"""
+
 __title__ = "OpenSees Writer"
 __author__ = "Bernd Hahnebach, Raeyat Roknabadi Ebrahim"
 __url__ = "http://www.freecadweb.org"
