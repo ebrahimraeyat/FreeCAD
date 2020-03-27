@@ -27,9 +27,6 @@ __all__ = [
 ]
 
 
-dofs = ['x', 'y', 'z', 'xx', 'yy', 'zz']
-
-
 class Loads(object):
 
     def __init__(self):
@@ -40,12 +37,12 @@ class Loads(object):
 
         self.write_section('Loads')
         self.blank_line()
-        print(self.force_objects)
 
         for femobj in self.force_objects:
             # femobj --> dict, FreeCAD document object is femobj["Object"]
             direction_vec = femobj["Object"].DirectionVector
             for ref_shape in femobj["NodeLoadTable"]:
+                self.write_line("pattern Plain 1 Linear {")
                 for n in sorted(ref_shape[1]):
                     node_load = ref_shape[1][n]
                     v1 = direction_vec.x * node_load
@@ -58,33 +55,38 @@ class Loads(object):
 
                     if ltype == 'PointLoad':
 
-                        self.write_line('load {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(n, v1, v2, v3))
+                        self.write_line('\tload {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(
+                            n, v1, v2, v3))
 
                     # Gravity
                     # -------
 
-                    elif ltype == 'GravityLoad':
+                    # elif ltype == 'GravityLoad':
 
-                        for nkey, node in self.structure.nodes.items():
+                    #     for nkey, node in self.structure.nodes.items():
 
-                            W = - fact * node.mass * 9.81
-                            self.write_line('load {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(nkey + 1, gx * W, gy * W, gz * W))
+                    #         W = - fact * node.mass * 9.81
+                    #         self.write_line('load {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(
+                    # nkey + 1, gx * W, gy * W, gz * W))
 
-                    # LineLoad
-                    # --------
+                    # # LineLoad
+                    # # --------
 
-                    elif ltype == 'LineLoad':
+                    # elif ltype == 'LineLoad':
 
-                        if axes == 'global':
+                    #     if axes == 'global':
 
-                            raise NotImplementedError
+                    #         raise NotImplementedError
 
-                        elif axes == 'local':
+                    #     elif axes == 'local':
 
-                            elements = ' '.join([str(i + 1) for i in sets[k].selection])
-                            lx = -com['x'] * fact
-                            ly = -com['y'] * fact
-                            self.write_line('eleLoad -ele {0} -type -beamUniform {1} {2}'.format(elements, ly, lx))
+                    #         elements = ' '.join([str(i + 1) for i in sets[k].selection])
+                    #         lx = -com['x'] * fact
+                    #         ly = -com['y'] * fact
+                    #         self.write_line('eleLoad -ele {0} -type -\
+                    # beamUniform {1} {2}'.format(elements, ly, lx))
+
+                self.write_line("}")
 
                 self.blank_line()
                 self.blank_line()

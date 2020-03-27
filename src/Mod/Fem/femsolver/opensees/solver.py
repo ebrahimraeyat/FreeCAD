@@ -76,8 +76,7 @@ class Proxy(solverbase.Proxy):
         return True
 
     def edit(self, directory):
-        pattern = os.path.join(directory, "*.in")
-        print(pattern)
+        pattern = os.path.join(directory, "*.tcl")
         print("Editing of OpenSees input files inside FreeCAD not supported ATM.")
         f = glob.glob(pattern)[0]
         FemGui.open(f)

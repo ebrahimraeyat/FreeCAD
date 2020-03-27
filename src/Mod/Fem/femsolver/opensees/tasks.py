@@ -26,7 +26,7 @@ __title__ = "OpenSees Tasks"
 __author__ = "Bernd Hahnebach"
 __url__ = "http://www.freecadweb.org"
 
-# \addtogroup FEM
+## \addtogroup FEM
 #  @{
 
 import os
@@ -38,7 +38,7 @@ import FreeCAD
 from . import writer
 from .. import run
 from .. import settings
-from femtools import femutils
+# from femtools import femutils
 from femtools import membertools
 
 
@@ -81,12 +81,15 @@ class Solve(run.Solve):
             # TODO do not run solver, do not try to read results in a smarter way than an Exception
             raise Exception("Error on writing OpenSees input file.\n")
         infile = _inputFileName + ".tcl"
-        FreeCAD.Console.PrintError("OpenSees solver input file: {} \n".format(infile))  # will be changed into log later
+        # will be changed into log later
+        FreeCAD.Console.PrintError("OpenSees solver input file: {} \n".format(infile))
 
         self.pushStatus("Executing solver...\n")
         binary = settings.get_binary("OpenSees")
-        FreeCAD.Console.PrintError("OpenSees solver binary: {} \n".format(binary))  # will be changed into log later
-        FreeCAD.Console.PrintError("OpenSees solver run dir: {} \n".format(self.directory))  # will be changed into log later
+        # will be changed into log later
+        FreeCAD.Console.PrintError("OpenSees solver binary: {} \n".format(binary))
+        # will be changed into log later
+        FreeCAD.Console.PrintError("OpenSees solver run dir: {} \n".format(self.directory))
         # if something goes wrong the binary path could be set for debugging
         # binary = "/path/to/binary/OpenSees"
         self._process = subprocess.Popen(
@@ -111,4 +114,4 @@ class Results(run.Results):
     def load_results_opensees(self):
         FreeCAD.Console.PrintMessage("OpenSees-info: reading output not yet implemented.\n")
 
-# @}
+##  @}

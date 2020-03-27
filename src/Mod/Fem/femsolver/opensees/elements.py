@@ -88,10 +88,13 @@ class Elements(object):
                     solid = 'FourNodeTetrahedron'
                 elif len(nodes) == 20:
                     solid = '20NodeBrick'
+                    # rearrange nodes number to avoid negative jacobian
+                    maps = [6, 7, 8, 5, 2, 3, 4, 1, 14, 15, 16, 13, 10, 11, 12, 9, 18, 19, 20, 17]
+                    nodes = ''.join(f"{nodes[i - 1]} " for i in maps)
                 else:
-                    FreeCAD.Console.PrintError("Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes))
-                                               )
-                self.write_line('element {0} {1} {2} {3}'.format(solid, key, ' '.join([str(i) for i in nodes]), 1))
+                    FreeCAD.Console.PrintError(
+                        "Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes)))
+                self.write_line('element {0} {1} {2} {3}'.format(solid, key, nodes, 1))
 
             # =====================================================================================================
             # =====================================================================================================
@@ -115,46 +118,53 @@ class Elements(object):
             elif stype == 'TrussSection':
 
                 e = 'element corotTruss'
-                self.write_line('{0} {1} {2} {3} {4} {5}'.format(e, n, nodes[0], nodes[1], A, m_index))
+                self.write_line('{0} {1} {2} {3} {4} {5}'.format(
+                    e, n, nodes[0], nodes[1], A, m_index))
 
-            elif stype == 'SpringSection':
+            # elif stype == 'SpringSection':
 
-                kx = section.stiffness.get('axial', 0)
-                ky = section.stiffness.get('lateral', 0)
-                kr = section.stiffness.get('rotation', 0)
+            #     kx = section.stiffness.get('axial', 0)
+            #     ky = section.stiffness.get('lateral', 0)
+            #     kr = section.stiffness.get('rotation', 0)
 
-                if s_index not in written_springs:
+            #     if s_index not in written_springs:
 
-                    if kx:
+            #         if kx:
 
-                        self.write_line('uniaxialMaterial Elastic 2{0:0>3} {1}'.format(s_index, kx))
-                        self.blank_line()
+            #             self.write_line('uniaxialMaterial Elastic 2{0:0>3} {1}'.format(
+            # s_index, kx))
+            #             self.blank_line()
 
-                    # else:
-                    #     i = ' '.join([str(k) for k in section.forces['axial']])
-                    #     j = ' '.join([str(k) for k in section.displacements['axial']])
-                    #     f.write('uniaxialMaterial ElasticMultiLinear {0}01 -strain {1} -stress {2}\n'.format(
-                    #         s_index, j, i))
-                    #     f.write('#\n')
+            #         # else:
+            #         #     i = ' '.join([str(k) for k in section.forces['axial']])
+            #         #     j = ' '.join([str(k) for k in section.displacements['axial']])
+            #         #     f.write('uniaxialMaterial ElasticMultiLinear {0}01
+            #         # -strain {1} -stress {2}\n'.format(
+            #         #         s_index, j, i))
+            #         #     f.write('#\n')
 
-                    written_springs.append(s_index)
+            #         written_springs.append(s_index)
 
-                orientation = ' '.join([str(k) for k in ey])
+            #     orientation = ' '.join([str(k) for k in ey])
 
-                self.write_line('element twoNodeLink {0} {1} {2} -mat 2{3:0>3} -dir 1 -orient {4}'.format(n, nodes[0], nodes[1], s_index, orientation))
+            #     self.write_line('element twoNodeLink {0} {1} {2}
+            # -mat 2{3:0>3} -dir 1 -orient {4}'.format(
+            #         n, nodes[0], nodes[1], s_index, orientation))
 
             # BEAM
             else:
 
                 e = 'element elasticBeamColumn'
-                self.write_line('geomTransf Corotational {0} {1}'.format(n, ' '.join([str(i) for i in ex])))
-                self.write_line('{} {} {} {} {} {} {} {} {} {} {}'.format(e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n))
+                self.write_line('geomTransf Corotational {0} {1}'.format(
+                    n, ' '.join([str(i) for i in ex])))
+                self.write_line('{} {} {} {} {} {} {} {} {} {} {}'.format(
+                    e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n))
 
         self.blank_line()
         self.blank_line()
 
 
-# def _write_membranes(f, software, selection, elements, geometry, material, materials, reinforcement):
+# def _write_membranes(elements, geometry, material, materials, reinforcement):
 
 #     for select in selection:
 
@@ -168,7 +178,8 @@ class Elements(object):
 #         if software == 'abaqus':
 
 #             e1 = 'element_{0}'.format(select)
-#             f.write('*ELEMENT, TYPE={0}, ELSET={1}\n'.format('M3D3' if len(nodes) == 3 else 'M3D4', e1))
+#             f.write('*ELEMENT, TYPE={0}, ELSET={1}\n'.format(
+# 'M3D3' if len(nodes) == 3 else 'M3D4', e1))
 #             f.write('{0}, {1}\n'.format(n, ','.join([str(i + 1) for i in nodes])))
 
 #             if ex and ey:

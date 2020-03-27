@@ -26,8 +26,6 @@ __all__ = [
     'BCs',
 ]
 
-dofs    = ['x',  'y',  'z',  'xx', 'yy', 'zz']
-
 
 class BCs(object):
 
@@ -35,73 +33,31 @@ class BCs(object):
 
         pass
 
-
     def write_boundary_conditions(self):
 
+        self.get_constraints_fixed_nodes()
         self.write_section('Boundary conditions')
         self.blank_line()
 
-        sets          = self.structure.sets
-        steps         = self.structure.steps
-        displacements = self.structure.displacements
+        entry = '1 1 1'
 
-        try:
-
-            step = steps[self.structure.steps_order[0]]
-
-            if isinstance(step.displacements, str):
-                step.displacements = [step.displacements]
-
-            for key in step.displacements:
-
-                nodes      = displacements[key].nodes
-                components = displacements[key].components
-                nset       = nodes if isinstance(nodes, str) else None
-                selection  = sets[nset].selection if isinstance(nodes, str) else nodes
-
-                self.write_subsection(key)
-
-                # ----------------------------------------------------------------------------
-                # OpenSees
-                # ----------------------------------------------------------------------------
-
-                if self.software == 'opensees':
-
-                    entry = ['1' if components[dof] is not None else '0' for dof in dofs[:self.ndof]]
-
-                    for node in sorted(selection, key=int):
-                        self.write_line('fix {0} {1}'.format(node + 1, ' '.join(entry)))
-
-                # ----------------------------------------------------------------------------
-                # Abaqus
-                # ----------------------------------------------------------------------------
-
-                elif self.software == 'abaqus':
-
-                    self.write_line('*BOUNDARY')
-                    self.blank_line()
-
-                    for c, dof in enumerate(dofs, 1):
-                        if components[dof] is not None:
-                            if nset:
-                                self.write_line('{0}, {1}, {1}, {2}'.format(nset, c, components[dof]))
-                            else:
-                                for node in sorted(selection, key=int):
-                                    self.write_line('{0}, {1}, {1}, {2}'.format(node + 1, c, components[dof]))
-
-                # ----------------------------------------------------------------------------
-                # Ansys
-                # ----------------------------------------------------------------------------
-
-                elif self.software == 'ansys':
-
-                    pass
-
-                self.blank_line()
-
-        except:
-
-            print('***** Error writing boundary conditions, check Step exists in structure.steps_order[0] *****')
+        for femobj in self.fixed_objects:
+            # femobj --> dict, FreeCAD document object is femobj["Object"]
+            fix_obj = femobj["Object"]
+            if self.femmesh.Volumes \
+                    and (len(self.shellthickness_objects) > 0 or len(self.beamsection_objects) > 0):
+                if len(femobj["NodesSolid"]) > 0:
+                    self.write_line("#NSET,NSET=" + fix_obj.Name + "Solid")
+                    for n in femobj["NodesSolid"]:
+                        self.write_line("fix {0} {1}".format(n, " ".join(entry)))
+                if len(femobj["NodesFaceEdge"]) > 0:
+                    self.write_line("#NSET,NSET=" + fix_obj.Name + "FaceEdge")
+                    for n in femobj["NodesFaceEdge"]:
+                        self.write_line("fix {0} {1}".format(n, " ".join(entry)))
+            else:
+                self.write_line("#NSET,NSET=" + fix_obj.Name)
+                for n in sorted(femobj["Nodes"], key=int):
+                    self.write_line("fix {0} {1}".format(n, " ".join(entry)))
 
         self.blank_line()
         self.blank_line()

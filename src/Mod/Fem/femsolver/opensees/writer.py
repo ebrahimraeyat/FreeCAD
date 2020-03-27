@@ -41,19 +41,16 @@ __url__ = "http://www.freecadweb.org"
 #  @{
 
 
-import time
 from os.path import join
-
-import FreeCAD
 
 from .heading import Heading
 from .nodes import Nodes
 from .elements import Elements
 from .loads import Loads
-# from sets import Sets
-# from bcs import BCs
+# from .sets import Sets
+from .bcs import BCs
 from .materials import Materials
-# from steps import Steps
+from .steps import Steps
 from .. import writerbase
 from femmesh import meshtools
 
@@ -72,7 +69,9 @@ comments = {
 
 
 class FemInputWriterOpenSees(writerbase.FemInputWriter,
-                             # Steps,  BCs, Sets,
+                             Steps,
+                             BCs,
+                             # Sets,
                              Loads,
                              Materials,
                              Elements,
@@ -132,9 +131,10 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
         self.write_heading()
         self.write_materials()
         self.write_nodes()
-        # writer.write_boundary_conditions()
+        self.write_boundary_conditions()
         self.write_elements()
         self.write_loads()
+        self.write_steps()
 
         print('***** OpenSees input file generated: {0} *****\n'.format(self.file_name))
         return self.file_name
@@ -154,7 +154,7 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
 
     def divider_line(self):
 
-        self.file.write('{0}------------------------------------------------------------------\n'.format(self.comment))
+        self.file.write('{0}'.format(self.comment) + 65 * '-' + '\n')
 
     def write_line(self, line):
 

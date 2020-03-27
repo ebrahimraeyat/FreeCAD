@@ -58,14 +58,15 @@ class Materials(object):
             self.write_line('nDMaterial ElasticIsotropic {0} {1} {2} {3}'.format(
                             1, E.Value, v, p.Value))
 
-        elif mtype == 'Steel':
+        # elif mtype == 'Steel':
 
-            fy = material.fy
-            fu = material.fu
-            ep = material.ep
-            EshE = (fu - fy) / ep
+        #     fy = material.fy
+        #     fu = material.fu
+        #     ep = material.ep
+        #     EshE = (fu - fy) / ep
 
-            self.write_line('uniaxialMaterial Steel01 {0} {1} {2} {3}'.format(m_index, fy, E['E'], EshE))
+        #     self.write_line('uniaxialMaterial Steel01 {0} {1} {2} {3}'.format(
+        #         m_index, fy, E['E'], EshE))
 
         self.blank_line()
         self.blank_line()
