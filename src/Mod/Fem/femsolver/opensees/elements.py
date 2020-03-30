@@ -110,7 +110,7 @@ class Elements(object):
                     # self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
                     # self.write_line('element ShellDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
                     # self.write_line('element ShellNLDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
-                    # aparently unknown to OpenSees
+                    # apparently unknown to OpenSees
                 else:
                     self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
                     self.write_line('element ShellNLDKGQ {0} {1} {0}'.format(n, ' '.join(nodes)))
