@@ -51,20 +51,24 @@ elif open.__module__ == "io":
     pyopen = open
 
 
-def open(
+def export(
+    objectslist,
     filename
 ):
-    """called when freecad opens a file
-    a FEM mesh object is created in a new document"""
-
-    pass
-    # docname = os.path.splitext(os.path.basename(filename))[0]
-    # return insert(filename, docname)
-
-
-def export(objectslist, filename):
-    # TODO implement
-    pass
+    "called when freecad exports a file"
+    if len(objectslist) != 1:
+        Console.PrintError("This exporter can only export one object.\n")
+        return
+    obj = objectslist[0]
+    if not obj.isDerivedFrom("Fem::FemMeshObject"):
+        Console.PrintError("No FEM mesh object selected.\n")
+        return
+    fem_mesh = obj.FemMesh
+    femnodes_mesh = fem_mesh.Nodes
+    femelement_table = meshtools.get_femelement_table(fem_mesh)
+    f = pyopen(filename, "w")
+    write_opensees_mesh_to_file(femnodes_mesh, femelement_table, None, f)
+    f.close()
 
 
 # ************************************************************************************************
@@ -84,7 +88,7 @@ def write(
     femelement_table = meshtools.get_femelement_table(fem_mesh)
     # opensees_element_type = get_opensees_element_type(fem_mesh, femelement_table)
     f = pyopen(filename, "w")
-    write_opensees_mesh_to_file(femnodes_mesh, femelement_table, opensees_element_type, f)
+    write_opensees_mesh_to_file(femnodes_mesh, femelement_table, None, f)
     f.close()
 
 
