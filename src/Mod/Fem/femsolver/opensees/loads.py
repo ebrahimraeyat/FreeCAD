@@ -55,7 +55,7 @@ class Loads(object):
 
                     if ltype == 'PointLoad':
 
-                        self.write_line('\tload {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}'.format(
+                        self.write_line('\tload {0}\t{1:.3f}\t{2:.3f}\t{3:.3f}\t0\t0\t0'.format(
                             n, v1, v2, v3))
 
                     # Gravity

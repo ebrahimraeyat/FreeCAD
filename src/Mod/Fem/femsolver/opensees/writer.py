@@ -100,7 +100,7 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
                  software='opensees',
                  filename='/home/ebi/freecad_opensees.tcl',
                  fields=None,
-                 ndof=3,
+                 ndof=6,
                  ):
         writerbase.FemInputWriter.__init__(self,
                                            analysis_obj,

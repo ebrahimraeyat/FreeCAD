@@ -39,7 +39,6 @@ class Materials(object):
 
         self.write_section('Materials')
         self.blank_line()
-        print(self.material_objects)
         mat_obj = self.material_objects[0]["Object"]
         E = FreeCAD.Units.Quantity(mat_obj.Material["YoungsModulus"])
         E = E.getValueAs("kg/(mm*s^2)")

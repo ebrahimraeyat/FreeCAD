@@ -39,7 +39,7 @@ class BCs(object):
         self.write_section('Boundary conditions')
         self.blank_line()
 
-        entry = '1 1 1'
+        entry = '1 1 1 1 1 1'
 
         for femobj in self.fixed_objects:
             # femobj --> dict, FreeCAD document object is femobj["Object"]

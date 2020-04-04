@@ -36,13 +36,28 @@ class Elements(object):
 
         pass
 
+    @staticmethod
+    def element_1D_ifcType(p1, p2):
+        normal = abs(p2 - p1)
+        if normal.z > max(normal.x, normal.y):
+            return "column"
+        else:
+            return "beam"
+
     def write_elements(self):
 
         self.write_section('Elements')
         self.blank_line()
 
+        self.write_line('geomTransf Linear 1 0 0 1')
+        self.write_line("geomTransf PDelta 2 0 1 0")
+
+        print(f"self.beamsection_objects = {self.beamsection_objects}")
+        print(f"self.transform_objects = {self.transform_objects}")
+        print(f"self.material_objects = {self.material_objects}")
+
         for key, nodes in self.femelement_table.items():
-            stype = 'SolidSection'
+            n = len(nodes)
 
             # self.write_subsection(key)
 
@@ -65,36 +80,41 @@ class Elements(object):
             # if geometry is not None:
 
             #     t   = geometry.get('t', None)
-            #     A   = geometry.get('A', None)
-            #     J   = geometry.get('J', None)
-            #     Ixx = geometry.get('Ixx', None)
-            #     Iyy = geometry.get('Iyy', None)
-            #     E   = material.E.get('E', None)
-            #     G   = material.G.get('G', None)
+            A = 1000
+            J = 1000
+            Ixx = 10000000
+            Iyy = 10000000
+            E = 200000
+            G = 1000
 
-            # for select in selection:
-
-            #     element = elements[select]
-            #     nodes   = [str(i + 1) for i in element.nodes]
-            #     no      = len(nodes)
-            #     n       = select + 1
-            #     ex      = element.axes.get('ex', None)
-            #     ey      = element.axes.get('ey', None)
-            #     ez      = element.axes.get('ez', None)
-
-            if stype == 'SolidSection':
-
-                if len(nodes) == 4:
-                    solid = 'FourNodeTetrahedron'
-                elif len(nodes) == 20:
-                    solid = '20NodeBrick'
-                    # rearrange nodes number to avoid negative jacobian
-                    maps = [6, 7, 8, 5, 2, 3, 4, 1, 14, 15, 16, 13, 10, 11, 12, 9, 18, 19, 20, 17]
-                    nodes = ''.join(f"{nodes[i - 1]} " for i in maps)
+            if n in (2, 3):
+                e = 'element elasticBeamColumn'
+                n1 = nodes[0]
+                n2 = nodes[1]
+                if n == 3:
+                    self.write_line("remove node {}".format(nodes[2]))
+                p1 = self.femnodes_mesh[n1]
+                p2 = self.femnodes_mesh[n2]
+                ifc_type = Elements.element_1D_ifcType(p1, p2)
+                if ifc_type == "column":
+                    geomtransf = 2
                 else:
-                    FreeCAD.Console.PrintError(
-                        "Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes)))
-                self.write_line('element {0} {1} {2} {3}'.format(solid, key, nodes, 1))
+                    geomtransf = 1
+
+                self.write_line('{} {} {} {} {} {} {} {} {} {} {}'.format(
+                    e, key, n1, n2, A, E, G, J, Ixx, Iyy, geomtransf))
+            # elif n == 4:
+            #     e = 'element ShellMITC4'
+            elif n == 20:
+                e = 'element 20NodeBrick'
+                # rearrange nodes number to avoid negative jacobian
+                maps = [6, 7, 8, 5, 2, 3, 4, 1, 14, 15, 16, 13, 10, 11, 12, 9, 18, 19, 20, 17]
+                nodes = ''.join(f"{nodes[i - 1]} " for i in maps)
+                self.write_line('{0} {1} {2} {3}'.format(e, key, nodes, 1))
+            else:
+                FreeCAD.Console.PrintError(
+                    "Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes)))
+            # self.write_line('element {0} {1} {2} {3}'.format(solid, key, nodes, 1))
 
             # =====================================================================================================
             # =====================================================================================================
@@ -102,24 +122,22 @@ class Elements(object):
             # =====================================================================================================
             # =====================================================================================================
 
-            elif stype == 'ShellSection':
+            # if no == 3:
+            #     self.write_line('element tri31 {0} {1} {2} PlaneStress {3} 0 {4} 0 0'.format(
+            #                     n, ' '.join(nodes), t, m_index + 1000, material.p))
+                # self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
+                # self.write_line('element ShellDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
+                # self.write_line('element ShellNLDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
+                # apparently unknown to OpenSees
+            # else:
+            #     self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
+            #     self.write_line('element ShellNLDKGQ {0} {1} {0}'.format(n, ' '.join(nodes)))
 
-                if no == 3:
-                    self.write_line('element tri31 {0} {1} {2} PlaneStress {3} 0 {4} 0 0'.format(
-                                    n, ' '.join(nodes), t, m_index + 1000, material.p))
-                    # self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
-                    # self.write_line('element ShellDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
-                    # self.write_line('element ShellNLDKGT {0} {1} {0}'.format(n, ' '.join(nodes)))
-                    # apparently unknown to OpenSees
-                else:
-                    self.write_line('section PlateFiber {0} {1} {2}'.format(n, m_index + 1000, t))
-                    self.write_line('element ShellNLDKGQ {0} {1} {0}'.format(n, ' '.join(nodes)))
+            # elif stype == 'TrussSection':
 
-            elif stype == 'TrussSection':
-
-                e = 'element corotTruss'
-                self.write_line('{0} {1} {2} {3} {4} {5}'.format(
-                    e, n, nodes[0], nodes[1], A, m_index))
+            #     e = 'element corotTruss'
+            #     self.write_line('{0} {1} {2} {3} {4} {5}'.format(
+            #         e, n, nodes[0], nodes[1], A, m_index))
 
             # elif stype == 'SpringSection':
 
@@ -150,15 +168,6 @@ class Elements(object):
             #     self.write_line('element twoNodeLink {0} {1} {2}
             # -mat 2{3:0>3} -dir 1 -orient {4}'.format(
             #         n, nodes[0], nodes[1], s_index, orientation))
-
-            # BEAM
-            else:
-
-                e = 'element elasticBeamColumn'
-                self.write_line('geomTransf Corotational {0} {1}'.format(
-                    n, ' '.join([str(i) for i in ex])))
-                self.write_line('{} {} {} {} {} {} {} {} {} {} {}'.format(
-                    e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n))
 
         self.blank_line()
         self.blank_line()
