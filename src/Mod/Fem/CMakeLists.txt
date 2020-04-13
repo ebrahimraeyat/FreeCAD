@@ -37,7 +37,6 @@ SET(FemExamples_SRCS
     femexamples/__init__.py
     femexamples/boxanalysis.py
     femexamples/ccx_cantilever_std.py
-    femexamples/opensees_cantilever_std.py
     femexamples/constraint_contact_shell_shell.py
     femexamples/constraint_contact_solid_solid.py
     femexamples/constraint_tie.py

@@ -33,6 +33,17 @@ canti.setup_cantileverhexa20faceload()
 
 """
 
+# to run the example with a different solver (for example OpenSees) use:
+"""
+from femexamples import ccx_cantilever_std as canti
+
+canti.setup_cantileverbase(opensees)
+canti.setup_cantileverfaceload(opensees)
+canti.setup_cantilevernodeload(opensees)
+canti.setup_cantileverprescribeddisplacement(opensees)
+canti.setup_cantileverhexa20faceload(opensees)
+
+"""
 
 import FreeCAD
 
