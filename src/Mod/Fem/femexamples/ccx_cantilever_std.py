@@ -33,6 +33,18 @@ canti.setup_cantileverhexa20faceload()
 
 """
 
+# to run the example with a different solver (for example OpenSees) use:
+"""
+from femexamples import ccx_cantilever_std as canti
+
+canti.setup_cantileverbase(solvertype="opensees")
+canti.setup_cantileverfaceload"(solvertype="opensees")
+canti.setup_cantilevernodeload(solvertype="opensees")
+canti.setup_cantileverprescribeddisplacement(solvertype="opensees")
+canti.setup_cantileverhexa20faceload(solvertype="opensees")
+
+"""
+
 import FreeCAD
 
 import Fem
@@ -79,6 +91,8 @@ def setup_cantileverbase(doc=None, solvertype="ccxtools"):
         solver_object.WorkingDir = u""
     elif solvertype == "elmer":
         analysis.addObject(ObjectsFem.makeSolverElmer(doc, "SolverElmer"))
+    elif solvertype == "opensees":
+        analysis.addObject(ObjectsFem.makeSolverOpenSees(doc, "SolverOpenSees"))
     elif solvertype == "z88":
         analysis.addObject(ObjectsFem.makeSolverZ88(doc, "SolverZ88"))
     if solvertype == "calculix" or solvertype == "ccxtools":
