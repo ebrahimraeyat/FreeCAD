@@ -38,7 +38,6 @@ import FreeCAD
 from . import writer
 from .. import run
 from .. import settings
-# from femtools import femutils
 from femtools import membertools
 
 

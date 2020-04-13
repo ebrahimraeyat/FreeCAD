@@ -72,12 +72,12 @@ SET(FemInOut_SRCS
     feminout/importCcxFrdResults.py
     feminout/importFenicsMesh.py
     feminout/importInpMesh.py
+    feminout/importOpenSeesMesh.py
     feminout/importToolsFem.py
     feminout/importVTKResults.py
     feminout/importYamlJsonMesh.py
     feminout/importZ88Mesh.py
     feminout/importZ88O2Results.py
-    feminout/importOpenSeesMesh.py
     feminout/readFenicsXDMF.py
     feminout/readFenicsXML.py
     feminout/writeFenicsXDMF.py
@@ -143,16 +143,16 @@ SET(FemSolverFenics_SRCS
 
 SET(FemSolverOpenSees_SRCS
     femsolver/opensees/__init__.py
+    femsolver/opensees/bcs.py
+    femsolver/opensees/elements.py
+    femsolver/opensees/heading.py
+    femsolver/opensees/loads.py
+    femsolver/opensees/materials.py
+    femsolver/opensees/nodes.py
     femsolver/opensees/solver.py
+    femsolver/opensees/steps.py
     femsolver/opensees/tasks.py
     femsolver/opensees/writer.py
-    femsolver/opensees/heading.py
-    femsolver/opensees/nodes.py
-    femsolver/opensees/elements.py
-    femsolver/opensees/materials.py
-    femsolver/opensees/bcs.py
-    femsolver/opensees/steps.py
-    femsolver/opensees/loads.py
 )
 
 SET(FemSolverZ88_SRCS

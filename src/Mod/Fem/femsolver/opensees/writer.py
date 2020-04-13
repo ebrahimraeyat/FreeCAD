@@ -37,19 +37,20 @@ __title__ = "OpenSees Writer"
 __author__ = "Bernd Hahnebach, Raeyat Roknabadi Ebrahim"
 __url__ = "http://www.freecadweb.org"
 
-# \addtogroup FEM
+## \addtogroup FEM
 #  @{
-
 
 from os.path import join
 
-from .heading import Heading
-from .nodes import Nodes
-from .elements import Elements
-from .loads import Loads
-# from .sets import Sets
+import FreeCAD
+
 from .bcs import BCs
+from .elements import Elements
+from .heading import Heading
+from .loads import Loads
 from .materials import Materials
+from .nodes import Nodes
+# from .sets import Sets
 from .steps import Steps
 from .. import writerbase
 from femmesh import meshtools
@@ -171,3 +172,4 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
         self.write_line('{0} {1}'.format(self.comment, subsection))
         self.write_line('{0}-{1}'.format(self.comment, '-' * len(subsection)))
         self.blank_line()
+##  @}
