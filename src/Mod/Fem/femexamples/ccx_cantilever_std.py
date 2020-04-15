@@ -37,11 +37,11 @@ canti.setup_cantileverhexa20faceload()
 """
 from femexamples import ccx_cantilever_std as canti
 
-canti.setup_cantileverbase(opensees)
-canti.setup_cantileverfaceload(opensees)
-canti.setup_cantilevernodeload(opensees)
-canti.setup_cantileverprescribeddisplacement(opensees)
-canti.setup_cantileverhexa20faceload(opensees)
+canti.setup_cantileverbase(solvertype="opensees")
+canti.setup_cantileverfaceload"(solvertype="opensees")
+canti.setup_cantilevernodeload(solvertype="opensees")
+canti.setup_cantileverprescribeddisplacement(solvertype="opensees")
+canti.setup_cantileverhexa20faceload(solvertype="opensees")
 
 """
 
