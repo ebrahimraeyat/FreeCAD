@@ -128,6 +128,7 @@ class FemInputWriterOpenSees(writerbase.FemInputWriter,
             self.femelement_table = meshtools.get_femelement_table(self.femmesh)
             self.element_count = len(self.femelement_table)
         self.get_constraints_force_nodeloads()
+        self.get_element_sets_material_and_femelement_type()
 
         self.write_heading()
         self.write_materials()

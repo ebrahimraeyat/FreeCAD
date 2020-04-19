@@ -40,24 +40,77 @@ class Elements(object):
     def element_1D_ifcType(p1, p2):
         normal = abs(p2 - p1)
         if normal.z > max(normal.x, normal.y):
-            return "column"
+            # column
+            return "PDelta"
         else:
-            return "beam"
+            # beam
+            return "Linear"
 
     def write_elements(self):
 
         self.write_section('Elements')
         self.blank_line()
+        print(self.ccx_elsets)
 
-        self.write_line('geomTransf Linear 1 0 0 1')
-        self.write_line("geomTransf PDelta 2 0 1 0")
+        # print(f"self.beamsection_objects = {self.beamsection_objects}")
+        # print(f"self.transform_objects = {self.transform_objects}")
+        # print(f"self.material_objects = {self.material_objects}")
 
-        print(f"self.beamsection_objects = {self.beamsection_objects}")
-        print(f"self.transform_objects = {self.transform_objects}")
-        print(f"self.material_objects = {self.material_objects}")
+        for ccx_elset in self.ccx_elsets:
+            if ccx_elset["ccx_elset"]:
+                if "beamsection_obj"in ccx_elset:  # beam mesh
+                    e = 'element elasticBeamColumn'
+                    A = 1000
+                    J = 1000
+                    Ixx = 10000000
+                    Iyy = 10000000
+                    E = 200000
+                    G = 1000
+                    normal = ccx_elset["beam_normal"]
+                    # beamsec_obj = ccx_elset["beamsection_obj"]
+                    # elsetdef = "ELSET=" + ccx_elset["ccx_elset_name"] + ", "
+                    # material = "MATERIAL=" + ccx_elset["mat_obj_name"]
 
-        for key, nodes in self.femelement_table.items():
-            n = len(nodes)
+                    # if beamsec_obj.SectionType == "Rectangular":
+                    #     height = beamsec_obj.RectHeight.getValueAs("mm")
+                    #     width = beamsec_obj.RectWidth.getValueAs("mm")
+                    #     section_type = ", SECTION=RECT"
+                    #     section_geo = str(height) + ", " + str(width) + "\n"
+                    #     section_def = "*BEAM SECTION, {}{}{}\n".format(
+                    #         elsetdef,
+                    #         material,
+                    #         section_type
+                    #     )
+                    # elif beamsec_obj.SectionType == "Circular":
+                    #     radius = 0.5 * beamsec_obj.CircDiameter.getValueAs("mm")
+                    #     section_type = ", SECTION=CIRC"
+                    #     section_geo = str(radius) + "\n"
+                    #     section_def = "*BEAM SECTION, {}{}{}\n".format(
+                    #         elsetdef,
+                    #         material,
+                    #         section_type
+                    #     )
+                    # elif beamsec_obj.SectionType == "Pipe":
+                    #     radius = 0.5 * beamsec_obj.PipeDiameter.getValueAs("mm")
+                    #     thickness = beamsec_obj.PipeThickness.getValueAs("mm")
+                    #     section_type = ", SECTION=PIPE"
+                    #     section_geo = str(radius) + ", " + str(thickness) + "\n"
+                    #     section_def = "*BEAM GENERAL SECTION, {}{}{}\n".format(
+                    #         elsetdef,
+                    #         material,
+                    #         section_type
+                    #     )
+
+                    for ele_id in ccx_elset["ccx_elset"]:
+                        nodes = self.femelement_table[ele_id]
+                        if len(nodes) == 3:
+                            self.write_line("remove node {}".format(nodes[2]))
+                        p1 = self.femnodes_mesh[nodes[0]]
+                        p2 = self.femnodes_mesh[nodes[1]]
+                        geomtransf = Elements.element_1D_ifcType(p1, p2)
+                        self.write_line('geomTransf {0} {1} {2}'.format(geomtransf, ele_id, ' '.join([str(i) for i in normal])))
+
+                        self.write_line("{} {} {} {} {} {} {} {} {} {} {}".format(e, ele_id, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, ele_id))
 
             # self.write_subsection(key)
 
@@ -80,40 +133,18 @@ class Elements(object):
             # if geometry is not None:
 
             #     t   = geometry.get('t', None)
-            A = 1000
-            J = 1000
-            Ixx = 10000000
-            Iyy = 10000000
-            E = 200000
-            G = 1000
 
-            if n in (2, 3):
-                e = 'element elasticBeamColumn'
-                n1 = nodes[0]
-                n2 = nodes[1]
-                if n == 3:
-                    self.write_line("remove node {}".format(nodes[2]))
-                p1 = self.femnodes_mesh[n1]
-                p2 = self.femnodes_mesh[n2]
-                ifc_type = Elements.element_1D_ifcType(p1, p2)
-                if ifc_type == "column":
-                    geomtransf = 2
-                else:
-                    geomtransf = 1
-
-                self.write_line('{} {} {} {} {} {} {} {} {} {} {}'.format(
-                    e, key, n1, n2, A, E, G, J, Ixx, Iyy, geomtransf))
             # elif n == 4:
             #     e = 'element ShellMITC4'
-            elif n == 20:
-                e = 'element 20NodeBrick'
-                # rearrange nodes number to avoid negative jacobian
-                maps = [6, 7, 8, 5, 2, 3, 4, 1, 14, 15, 16, 13, 10, 11, 12, 9, 18, 19, 20, 17]
-                nodes = ''.join(f"{nodes[i - 1]} " for i in maps)
-                self.write_line('{0} {1} {2} {3}'.format(e, key, nodes, 1))
-            else:
-                FreeCAD.Console.PrintError(
-                    "Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes)))
+            # elif n == 20:
+            #     e = 'element 20NodeBrick'
+            #     # rearrange nodes number to avoid negative jacobian
+            #     maps = [6, 7, 8, 5, 2, 3, 4, 1, 14, 15, 16, 13, 10, 11, 12, 9, 18, 19, 20, 17]
+            #     nodes = ''.join(f"{nodes[i - 1]} " for i in maps)
+            #     self.write_line('{0} {1} {2} {3}'.format(e, key, nodes, 1))
+            # else:
+            #     FreeCAD.Console.PrintError(
+            #         "Writing of OpenSees {} Nodes element not supported.\n".format(len(nodes)))
             # self.write_line('element {0} {1} {2} {3}'.format(solid, key, nodes, 1))
 
             # =====================================================================================================
