@@ -60,10 +60,11 @@ class Elements(object):
             if ccx_elset["ccx_elset"]:
                 if "beamsection_obj"in ccx_elset:  # beam mesh
                     e = 'element elasticBeamColumn'
-                    A = 1000
-                    J = 1000
-                    Ixx = 10000000
-                    Iyy = 10000000
+                    beamsec_obj = ccx_elset["beamsection_obj"]
+                    A = beamsec_obj.Area
+                    J = beamsec_obj.J
+                    Izz = beamsec_obj.Izz
+                    Iyy = beamsec_obj.Iyy
                     E = 200000
                     G = 1000
                     normal = ccx_elset["beam_normal"]
@@ -110,7 +111,7 @@ class Elements(object):
                         geomtransf = Elements.element_1D_ifcType(p1, p2)
                         self.write_line('geomTransf {0} {1} {2}'.format(geomtransf, ele_id, ' '.join([str(i) for i in normal])))
 
-                        self.write_line("{} {} {} {} {} {} {} {} {} {} {}".format(e, ele_id, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, ele_id))
+                        self.write_line("{} {} {} {} {} {} {} {} {} {} {}".format(e, ele_id, nodes[0], nodes[1], A, E, G, J, Izz, Iyy, ele_id))
 
             # self.write_subsection(key)
 
