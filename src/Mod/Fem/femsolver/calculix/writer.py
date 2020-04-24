@@ -1368,11 +1368,6 @@ class FemInputWriterCcx(writerbase.FemInputWriter):
                             material,
                             section_type
                         )
-                        section_nor = "{}, {}, {}\n".format(
-                            normal[0],
-                            normal[1],
-                            normal[2]
-                        )
                     elif beamsec_obj.SectionType == "Circular":
                         radius = 0.5 * beamsec_obj.CircDiameter.getValueAs("mm")
                         section_type = ", SECTION=CIRC"
@@ -1381,11 +1376,6 @@ class FemInputWriterCcx(writerbase.FemInputWriter):
                             elsetdef,
                             material,
                             section_type
-                        )
-                        section_nor = "{}, {}, {}\n".format(
-                            normal[0],
-                            normal[1],
-                            normal[2]
                         )
                     elif beamsec_obj.SectionType == "Pipe":
                         radius = 0.5 * beamsec_obj.PipeDiameter.getValueAs("mm")
@@ -1397,11 +1387,11 @@ class FemInputWriterCcx(writerbase.FemInputWriter):
                             material,
                             section_type
                         )
-                        section_nor = "{}, {}, {}\n".format(
-                            normal[0],
-                            normal[1],
-                            normal[2]
-                        )
+                    section_nor = "{}, {}, {}\n".format(
+                        normal[0],
+                        normal[1],
+                        normal[2]
+                    )
                     f.write(section_def)
                     f.write(section_geo)
                     f.write(section_nor)
@@ -1442,7 +1432,6 @@ class FemInputWriterCcx(writerbase.FemInputWriter):
                     material = "MATERIAL=" + ccx_elset["mat_obj_name"]
                     section_def = "*SOLID SECTION, " + elsetdef + material + "\n"
                     f.write(section_def)
-
 
 # ************************************************************************************************
 # Helpers
