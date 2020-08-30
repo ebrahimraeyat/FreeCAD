@@ -58,7 +58,7 @@ class Elements(object):
         materials = {MAT["Object"].Name: MAT["Object"] for MAT in self.material_objects}
         for ccx_elset in self.ccx_elsets:
             if ccx_elset["ccx_elset"]:
-                if "beamsection_obj"in ccx_elset:  # beam mesh
+                if "beamsection_obj" in ccx_elset:  # beam mesh
                     e = 'element elasticBeamColumn'
                     beamsec_obj = ccx_elset["beamsection_obj"]
                     mat_name = ccx_elset["mat_obj_name"]
@@ -73,7 +73,12 @@ class Elements(object):
                     J = beamsec_obj.J
                     Izz = beamsec_obj.Izz
                     Iyy = beamsec_obj.Iyy
-                    G = 1000
+                    try:
+                        G = FreeCAD.Units.Quantity(mat_obj.Material["ShearModulus"])
+                        G = G.getValueAs("kg/(mm*s^2)")
+                        G = G.Value
+                    except:
+                        G = 300
                     normal = ccx_elset["beam_normal"]
                     # beamsec_obj = ccx_elset["beamsection_obj"]
                     # elsetdef = "ELSET=" + ccx_elset["ccx_elset_name"] + ", "
